@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quizapp/data/questions.dart';
 import 'package:flutter_quizapp/questions.dart';
 import 'package:flutter_quizapp/quiz.dart';
+import 'package:flutter_quizapp/result_screen.dart';
 
 class GradientContainer extends StatefulWidget {
   const GradientContainer({super.key});
@@ -10,17 +12,40 @@ class GradientContainer extends StatefulWidget {
 }
 
 class _GradientContainerState extends State<GradientContainer> {
-  Widget? currentScreen;
+  Widget? _currentScreen;
+  final List<String> _choosedAnswers = [];
+
+  void chooseAnswer(String answer) {
+    _choosedAnswers.add(answer);
+
+    if (_choosedAnswers.length == questions.length) {
+      setState(() {
+        _currentScreen = ResultsScreen(
+          chosenAnswers: _choosedAnswers,
+          resetScreen: resetScreen,
+        );
+      });
+    }
+  }
+
+  void resetScreen() {
+    setState(() {
+      _currentScreen = Quiz(changeScreen);
+      _choosedAnswers.clear();
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    currentScreen = Quiz(changeScreen);
+    _currentScreen = Quiz(changeScreen);
   }
 
   void changeScreen() {
     setState(() {
-      currentScreen = const QuestionsScreen();
+      _currentScreen = QuestionsScreen(
+        onSelectedAnswer: chooseAnswer,
+      );
     });
   }
 
@@ -35,7 +60,7 @@ class _GradientContainerState extends State<GradientContainer> {
             Color.fromARGB(255, 180, 0, 224),
             Color.fromARGB(255, 92, 0, 153)
           ])),
-      child: currentScreen,
+      child: _currentScreen,
     );
   }
 }
